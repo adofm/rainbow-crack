@@ -38,7 +38,7 @@ The Rainbow Table Hash Cracker is a command-line tool designed to crack hashed p
 To use the Rainbow Table Hash Cracker, run the following command in your terminal:
 
 ```bash
-python3 hash_cracker.py <hash_value> <rainbow_file>
+python3 rainbowcrack.py <hash_value> <rainbow_file>
 ```
 
 ## Example
@@ -52,4 +52,4 @@ python3 hash_cracker.py <hash_value> <rainbow_file>
 2. Then, crack a hashed password using the generated rainbow table:
 
    ```bash
-   python3 hash_cracker.py "4fb2e5324b31c12a116e11
+   python3 rainbowcrack.py "4fb2e5324b31c12a116e11
