@@ -52,4 +52,4 @@ python3 rainbowcrack.py <hash_value> <rainbow_file>
 2. Then, crack a hashed password using the generated rainbow table:
 
    ```bash
-   python3 rainbowcrack.py "4fb2e5324b31c12a116e11
+   python3 rainbowcrack.py "4fb2e5324b31c12a116e11" test_table.rt
