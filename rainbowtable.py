@@ -7,6 +7,7 @@ from constants import CHARSETS_SECTION, MAIN_CONFIG_FILE
 from algorithm import Algorithm
 
 class GomuhryTree:
+    #adithya
     class Node:
         def __init__(self, leaf=True):
             self.leaf = leaf
@@ -28,7 +29,7 @@ class GomuhryTree:
             self._insert_non_full(temp, hash_key, chain_head)
         else:
             self._insert_non_full(root, hash_key, chain_head)
-
+    #darshan
     def _split_child(self, x, i):
         t = self.t
         y = x.child[i]
@@ -64,7 +65,7 @@ class GomuhryTree:
                 if k > x.keys[i]:
                     i += 1
             self._insert_non_full(x.child[i], k, v)
-
+    #jeevan
     def search(self, k):
         return self._search(self.root, k)
 
@@ -80,6 +81,7 @@ class GomuhryTree:
             return self._search(x.child[i], k)
 
 class RainbowTable:
+    #prasanth
     def load_config(self):
         """Loads configuration from config.ini."""
         logging.basicConfig(
@@ -131,7 +133,7 @@ class RainbowTable:
 
         self.tree = GomuhryTree(t=5)  # Initialize with minimum degree 5
         self.table = {}  # Keep the original table for backward compatibility
-
+    #deepak
     def hash_function(self, plaintext):
         """Returns a string that contains the computed hash of the 
         given string, using the algorithm chosen
@@ -146,7 +148,6 @@ class RainbowTable:
             return hashlib.sha1(plaintext.encode('utf-8')).digest()
         elif self.algorithm == Algorithm.MD5:
             return hashlib.md5(plaintext.encode('utf-8')).digest()
-
     def reduce_function(self, hashstring, index):
         """Returns a string that contains the reduced value of the 
         given hash string
@@ -214,7 +215,7 @@ class RainbowTable:
                 file.write(f"{randomPassword} -> {chainTail.hex()}\n")
     
         logging.debug("Collisions detected: " + str(collisions))
-
+    #karthik
     def save_to_file(self, filename):
         '''Writes this object on a file
         

@@ -8,6 +8,7 @@ import time
 from datetime import datetime
 from rainbowtable import RainbowTable
 
+#prasanth
 def setup_logging():
     """Configure logging settings"""
     log_dir = 'logs'
@@ -43,7 +44,7 @@ def validate_arguments(args):
     
     if args.algorithm.lower() not in ['sha1', 'md5']:
         raise ValueError("Algorithm must be either 'sha1' or 'md5'")
-
+#jeevan
 def estimate_memory_usage(args):
     """Estimate memory usage based on input parameters"""
     avg_length = (args.min_length + args.max_length) / 2
@@ -69,7 +70,7 @@ def check_output_file(filename):
         if response.lower() != 'y':
             logging.info("Operation cancelled by user")
             sys.exit(0)
-
+#karthik
 def main():
     try:
         # Set up argument parser with more detailed help messages

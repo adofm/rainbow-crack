@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+#adithya
 import sys
 import os
 import argparse
@@ -53,7 +54,7 @@ def main():
         except Exception as e:
             print(f"\n[-] Error loading rainbow table: {str(e)}")
             sys.exit(1)
-
+        #darshan
         # Display table information
         print("\n[+] Rainbow Table Information:")
         print(f"    Algorithm: {rt.algorithm}")
