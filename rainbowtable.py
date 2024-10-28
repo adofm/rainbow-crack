@@ -7,7 +7,7 @@ from constants import CHARSETS_SECTION, MAIN_CONFIG_FILE
 from algorithm import Algorithm
 
 class GomuhryTree:
-    #adithya
+    #jeevan
     class Node:
         def __init__(self, leaf=True):
             self.leaf = leaf
