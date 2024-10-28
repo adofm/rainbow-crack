@@ -3,7 +3,6 @@ import hashlib
 import random
 import logging
 import pickle
-import itertools
 from constants import CHARSETS_SECTION, MAIN_CONFIG_FILE
 from algorithm import Algorithm
 
@@ -82,14 +81,12 @@ class GomuhryTree:
 
 class RainbowTable:
     def load_config(self):
-        """
-        loads configuration from config.ini
-        """
+        """Loads configuration from config.ini."""
         logging.basicConfig(
             filename='log/rainbowTable.log',
             level=logging.DEBUG,
         )
-        logging.debug("loading configuration")
+        logging.debug("Loading configuration")
         self.config = configparser.ConfigParser()
         self.config.read(MAIN_CONFIG_FILE)
         logging.debug(self.config)
@@ -104,7 +101,7 @@ class RainbowTable:
                 min_length {int} -- minimum passwords length
                 max_length {int} -- maximum password length
                 chain_length {int} -- chain length
-                number _of_chains {int} -- number of chains
+                number_of_chains {int} -- number of chains
 
         Raises:
                 ValueError -- if algorithm is not 'sha1' or 'md5'
@@ -112,16 +109,16 @@ class RainbowTable:
         """
         self.load_config()
 
-        # load algorithm TODO manage arguments properly
-        if(algorithm == "sha1"):
+        # Load algorithm
+        if algorithm == "sha1":
             self.algorithm = Algorithm.SHA1
-        elif(algorithm == "md5"):
+        elif algorithm == "md5":
             self.algorithm = Algorithm.MD5
         else:
             raise ValueError("Algorithm not supported")
 
-        # load charset
-        if(self.config is not None and charset not in self.config[CHARSETS_SECTION]):
+        # Load charset
+        if self.config is not None and charset not in self.config[CHARSETS_SECTION]:
             raise ValueError(
                 "Charset not supported. For custom charset, edit the file config/config.ini"
             )
@@ -145,9 +142,9 @@ class RainbowTable:
         Returns:
                 string -- the hash computed
         """
-        if(self.algorithm == Algorithm.SHA1):
+        if self.algorithm == Algorithm.SHA1:
             return hashlib.sha1(plaintext.encode('utf-8')).digest()
-        elif(self.algorithm == Algorithm.MD5):
+        elif self.algorithm == Algorithm.MD5:
             return hashlib.md5(plaintext.encode('utf-8')).digest()
 
     def reduce_function(self, hashstring, index):
@@ -171,7 +168,7 @@ class RainbowTable:
         return reduced_value
 
     def generate_chain(self, password):
-        '''produces a chain starting from a plaintext
+        '''Produces a chain starting from a plaintext
         
         Arguments:
             password {string} -- plaintext to start from
@@ -183,32 +180,43 @@ class RainbowTable:
         reduced = password
         for i in range(self.chain_length):
             hashed = self.hash_function(reduced)
-            logging.debug(reduced + "-->" + hashed.hex())
+            logging.debug(reduced + " --> " + hashed.hex())
             reduced = self.reduce_function(hashed, i)
         logging.debug(
             "------------------------------------->" + hashed.hex())
         return hashed
 
     def generate_table(self):
-        '''generates the full table with GomuhryTree optimization'''
+        '''Generates the full table with GomuhryTree optimization and logs each
+        password-hash pair to hash.txt.'''
         collisions = 0
         self.table = {}
-        for _ in range(self.number_of_chains):
-            # generates a random password of allowed length
-            randomPassword = ''.join(random.choices(
-                self.charset,
-                k=random.randint(self.min_length, self.max_length))
-            )
+        
+        # Open the file to log hashed passwords
+        with open("hash.txt", "w") as file:
+            for _ in range(self.number_of_chains):
+                # Generate a random password of allowed length
+                randomPassword = ''.join(random.choices(
+                    self.charset,
+                    k=random.randint(self.min_length, self.max_length))
+                )
 
-            chainTail = self.generate_chain(randomPassword)
-            if chainTail in self.table:
-                collisions += 1
-            self.table[chainTail] = randomPassword
-            self.tree.insert(chainTail, randomPassword)  # Insert into GomuhryTree
-        logging.debug("collisions detected: " + str(collisions))
+                # Generate the chain tail hash from the random password
+                chainTail = self.generate_chain(randomPassword)
+                
+                # Check for collisions
+                if chainTail in self.table:
+                    collisions += 1
+                self.table[chainTail] = randomPassword
+                self.tree.insert(chainTail, randomPassword)  # Insert into GomuhryTree
+                
+                # Write the password and its final hash to the file
+                file.write(f"{randomPassword} -> {chainTail.hex()}\n")
+    
+        logging.debug("Collisions detected: " + str(collisions))
 
     def save_to_file(self, filename):
-        '''writes this object on a file
+        '''Writes this object on a file
         
         Arguments:
             filename {string} -- output file path
@@ -216,16 +224,16 @@ class RainbowTable:
         Returns:
             bool -- true if success
         '''
-        if (filename is None):
+        if filename is None:
             return False
-        fd = open(filename, "wb")
-        if(fd.write(pickle.dumps(self)) > 0):
-            return True
+        with open(filename, "wb") as fd:
+            if fd.write(pickle.dumps(self)) > 0:
+                return True
         return False
 
     @staticmethod
     def load_from_file(filename):
-        '''loads a RainbowObject previously generated
+        '''Loads a RainbowObject previously generated
         
         Arguments:
             filename {string} -- input file path
@@ -238,53 +246,40 @@ class RainbowTable:
         '''
         with open(filename, 'rb') as inputFile:
             objectLoaded = pickle.load(inputFile)
-        if(not isinstance(objectLoaded, RainbowTable)):
+        if not isinstance(objectLoaded, RainbowTable):
             raise ValueError("The file " + filename +
                              " does not contain a valid table")
         return objectLoaded
 
     def lookup(self, hash_to_crack):
-        '''looks for a cracked hash with GomuhryTree optimization'''
+        '''Looks for a cracked hash with GomuhryTree optimization'''
         hash_to_crack = bytes.fromhex(hash_to_crack)
         result = self.tree.search(hash_to_crack)
         if result is not None:
-            logging.debug("first chain matched: " + result + " --> " + hash_to_crack.hex())
+            logging.debug("First chain matched: " + result + " --> " + hash_to_crack.hex())
             return self.crack(result, hash_to_crack)
+
         # Existing lookup logic...
         for i in range(self.chain_length-1, -1, -1):
             hashtemp = hash_to_crack
             for j in range(i, self.chain_length):
                 reduced = self.reduce_function(hashtemp, j)
                 hashtemp = self.hash_function(reduced)
-                if(hashtemp in self.table):
+                if hashtemp in self.table:
                     logging.debug(
-                        "chain matched: " + 
-                        self.table[hashtemp] + 
-                        " --> " + 
-                        hashtemp.hex() + 
-                        " after " + 
-                        str(self.chain_length-i) + 
-                        " iterations"
+                        "Cracked! Found password: " + self.table[hashtemp] + 
+                        " | Step: " + str(i)
                     )
-                    psw = self.crack(self.table[hashtemp], hash_to_crack)
-                    if(psw is not None):
-                        return psw
+                    return self.crack(self.table[hashtemp], hash_to_crack)
         return None
 
-    def crack(self, chainhead, hash_to_crack):
-        '''tries to crack a given hash on a single chain
-        
-        Arguments:
-            chainhead {string}
-            hash_to_crack {string}
-        
-        Returns:
-            string -- the plaintext if found, None otherwise
-         '''
-        reduced = chainhead
+    def crack(self, password, hash_to_crack):
+        '''Attempts to crack the hash with a known starting password'''
+        logging.debug(f"Attempting to crack {hash_to_crack.hex()} starting with {password}")
+        reduced = password
         for i in range(self.chain_length):
-            hashtemp = self.hash_function(reduced)
-            if(hashtemp == hash_to_crack):
+            hashed = self.hash_function(reduced)
+            if hashed == hash_to_crack:
                 return reduced
-            reduced = self.reduce_function(hashtemp, i)
+            reduced = self.reduce_function(hashed, i)
         return None

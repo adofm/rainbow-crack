@@ -33,3 +33,6 @@ coverage.xml
 .vscode/
 *.log
 *.rt
+
+test.txt
+hash.txt
