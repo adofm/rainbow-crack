@@ -253,21 +253,20 @@ class RainbowTable:
         return objectLoaded
 
     def lookup(self, hash_to_crack):
-        '''Looks for a cracked hash with GomuhryTree optimization'''
         hash_to_crack = bytes.fromhex(hash_to_crack)
         result = self.tree.search(hash_to_crack)
         if result is not None:
-            logging.debug("First chain matched: " + result + " --> " + hash_to_crack.hex())
+            print("First chain matched: " + result + " --> " + hash_to_crack.hex())
             return self.crack(result, hash_to_crack)
 
-        # Existing lookup logic...
+        
         for i in range(self.chain_length-1, -1, -1):
             hashtemp = hash_to_crack
             for j in range(i, self.chain_length):
-                reduced = self.reduce_function(hashtemp, j)
+               reduced = self.reduce_function(hashtemp, j)
                 hashtemp = self.hash_function(reduced)
                 if hashtemp in self.table:
-                    logging.debug(
+                    print(
                         "Cracked! Found password: " + self.table[hashtemp] + 
                         " | Step: " + str(i)
                     )
@@ -276,7 +275,7 @@ class RainbowTable:
 
     def crack(self, password, hash_to_crack):
         '''Attempts to crack the hash with a known starting password'''
-        logging.debug(f"Attempting to crack {hash_to_crack.hex()} starting with {password}")
+        print(f"Attempting to crack {hash_to_crack.hex()} starting with {password}")
         reduced = password
         for i in range(self.chain_length):
             hashed = self.hash_function(reduced)
