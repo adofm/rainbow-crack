@@ -263,7 +263,7 @@ class RainbowTable:
         for i in range(self.chain_length-1, -1, -1):
             hashtemp = hash_to_crack
             for j in range(i, self.chain_length):
-               reduced = self.reduce_function(hashtemp, j)
+                reduced = self.reduce_function(hashtemp, j)
                 hashtemp = self.hash_function(reduced)
                 if hashtemp in self.table:
                     print(
